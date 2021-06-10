@@ -51,7 +51,7 @@ namespace OpenRiaServices.DomainServices.Client.Web.Internal
         /// <summary>
         /// Class represponsible for serialization of query options as a SOAP header
         /// </summary>
-        class QueryOptionsHeader : MessageHeader
+        public class QueryOptionsHeader : MessageHeader
         {
             private const string QueryOptionElementName = "QueryOption";
             private const string QueryNameAttribute = "Name";
