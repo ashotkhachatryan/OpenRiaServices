@@ -11,6 +11,8 @@ using System.ServiceModel.Description;
 using OpenRiaServices.DomainServices.Client.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml;
+using System.IO;
 
 #if SILVERLIGHT
 using System.Windows;
@@ -281,9 +283,31 @@ namespace OpenRiaServices.DomainServices.Client
                 channel.Endpoint.Address.Uri.AbsoluteUri,
                 method.Name.Substring(5), // skips "Begin"
                 null,
-                headers,
+                GetEnvelopeHeaders(headers?.ToList()),
                 parameters,
                 "1.1");
+        }
+
+        private string GetEnvelopeHeaders(ICollection<MessageHeader> messageHeaders)
+        {
+            if (messageHeaders == null || !messageHeaders.Any())
+            {
+                return "";
+            }
+
+            var settings = new XmlWriterSettings { OmitXmlDeclaration = true };
+
+            return string.Join("", messageHeaders.Select(mh =>
+            {
+                using (var sw = new StringWriter())
+                using (var xw = XmlWriter.Create(sw, settings))
+                {
+                    mh.WriteHeader(xw, MessageVersion.Default);
+
+                    xw.Flush();
+                    return sw.ToString();
+                }
+            }));
         }
 
         private static object InvokeEndMethod(MethodInfo method, ChannelFactory channel, IDictionary<string, object> parameters)
