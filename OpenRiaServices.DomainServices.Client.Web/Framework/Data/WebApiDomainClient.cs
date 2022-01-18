@@ -11,6 +11,7 @@ using System.ServiceModel;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace OpenRiaServices.DomainServices.Client.PortableWeb
 {
@@ -312,11 +313,11 @@ namespace OpenRiaServices.DomainServices.Client.PortableWeb
             {
                 foreach (var param in parameters)
                 {
-                    uriBuilder.Append(i++ == 0 ? '?' : '&');
-                    uriBuilder.Append(Uri.EscapeDataString(param.Key));
-                    uriBuilder.Append("=");
-                    if (param.Value != null)
+                    if (param.Key != null && param.Value != null)
                     {
+                        uriBuilder.Append(i++ == 0 ? '?' : '&');
+                        uriBuilder.Append(Uri.EscapeDataString(param.Key));
+                        uriBuilder.Append("=");
                         var value = ConvertValueToString(param.Value, param.Value.GetType());
                         uriBuilder.Append(Uri.EscapeDataString(value));
                     }
@@ -331,7 +332,7 @@ namespace OpenRiaServices.DomainServices.Client.PortableWeb
                     uriBuilder.Append(i++ == 0 ? "?$" : "&$");
                     uriBuilder.Append(queryPart.QueryOperator);
                     uriBuilder.Append("=");
-                    uriBuilder.Append(Uri.EscapeDataString(queryPart.Expression));
+                    uriBuilder.Append(HttpUtility.UrlEncode(HttpUtility.UrlEncode(queryPart.Expression)));
                 }
             }
 
