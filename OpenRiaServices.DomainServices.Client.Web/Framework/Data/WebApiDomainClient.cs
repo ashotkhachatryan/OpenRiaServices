@@ -295,6 +295,11 @@ namespace OpenRiaServices.DomainServices.Client.PortableWeb
 
         }
 
+        internal virtual IDictionary<string, Type> GetTypes(string operationName)
+        {
+            return new Dictionary<string, Type>();
+        }
+
         /// <summary>
         /// Initiates a GET request for the given operation and return the server respose (as a task).
         /// </summary>
@@ -311,6 +316,7 @@ namespace OpenRiaServices.DomainServices.Client.PortableWeb
             // Parameters
             if (parameters != null && parameters.Count > 0)
             {
+                var types = GetTypes(operationName);
                 foreach (var param in parameters)
                 {
                     if (param.Key != null && param.Value != null)
@@ -318,7 +324,7 @@ namespace OpenRiaServices.DomainServices.Client.PortableWeb
                         uriBuilder.Append(i++ == 0 ? '?' : '&');
                         uriBuilder.Append(Uri.EscapeDataString(param.Key));
                         uriBuilder.Append("=");
-                        var value = ConvertValueToString(param.Value, param.Value.GetType());
+                        var value = ConvertValueToString(param.Value, types.ContainsKey(param.Key) ? types[param.Key] : param.Value.GetType());
                         uriBuilder.Append(Uri.EscapeDataString(value));
                     }
                 }

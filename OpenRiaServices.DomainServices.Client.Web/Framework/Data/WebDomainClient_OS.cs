@@ -130,6 +130,35 @@ namespace OpenRiaServices.DomainServices.Client
         }
 
         /// <summary>
+        /// Fetch argument types from begin method
+        /// </summary>
+        /// <param name="operationName"></param>
+        /// <returns></returns>
+        internal override IDictionary<string, Type> GetTypes(string operationName)
+        {
+            Dictionary<string, Type> types = new Dictionary<string, Type>();
+
+            MethodInfo beginInvokeMethod = WebDomainClient<TContract>.ResolveBeginMethod(operationName);
+            foreach (var p in beginInvokeMethod.GetParameters())
+            {
+                types.Add(p.Name, p.ParameterType);
+                if (p.ParameterType == typeof(System.AsyncCallback))
+                    break;
+            }
+            return types;
+        }
+
+        private static MethodInfo ResolveBeginMethod(string operationName)
+        {
+            MethodInfo m = typeof(TContract).GetMethod("Begin" + operationName);
+            if (m == null)
+            {
+                throw new MissingMethodException(string.Format(CultureInfo.CurrentCulture, Resource.WebDomainClient_OperationDoesNotExist, operationName));
+            }
+            return m;
+        }
+
+        /// <summary>
         /// Gets the absolute path to the domain service.
         /// </summary>
         /// <remarks>
