@@ -391,11 +391,16 @@ namespace OpenRiaServices.DomainServices.Client.PortableWeb
                     VerifyReaderIsAtNode(reader, operationName, "Response");
                     reader.ReadStartElement(); // Read to next which should be ****Result
 
-                    // Validate that we are no on ****Result node
-                    VerifyReaderIsAtNode(reader, operationName, "Result");
+                    if (returnType != typeof(void))
+                    {
+                        // Validate that we are no on ****Result node
+                        VerifyReaderIsAtNode(reader, operationName, "Result");
 
-                    var serializer = GetSerializer(returnType);
-                    return serializer.ReadObject(reader, verifyObjectName: false);
+                        var serializer = GetSerializer(returnType);
+                        return serializer.ReadObject(reader, verifyObjectName: false);
+                    }
+
+                    return null;
                 }
             }
         }
